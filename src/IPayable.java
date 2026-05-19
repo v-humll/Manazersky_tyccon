@@ -1,1 +1,4 @@
-public interface IPayable {}
+public interface IPayable {
+    int getSalary();
+}
+

@@ -30,7 +30,6 @@ public class MainFrame extends JFrame {
         JPanel employeesPanel = new JPanel(new BorderLayout());
         employeesPanel.setBorder(BorderFactory.createTitledBorder("Employees"));
         employeeListModel = new DefaultListModel<>();
-        employeeListModel.addElement("Employee 1 (Developer) - Passive Income");
         JList<String> employeeList = new JList<>(employeeListModel);
         employeesPanel.add(new JScrollPane(employeeList), BorderLayout.CENTER);
         add(employeesPanel, BorderLayout.CENTER);
@@ -51,7 +50,18 @@ public class MainFrame extends JFrame {
     public void updateCompanyInfo(Company company) {
         financeLabel.setText("Finance: $" + company.getMoney());
         weekLabel.setText("Week: " + company.getWeek());
-        // For now hardcoded 1 employee
-        capacityLabel.setText("Capacity: 1/" + company.getCapacity());
+        capacityLabel.setText("Capacity: " + company.getEmployees().size() + "/" + company.getCapacity());
+        
+        employeeListModel.clear();
+        for (Employee emp : company.getEmployees()) {
+            String levelStr = "Junior";
+            if (emp.getLevel() == 2) {
+                levelStr = "Mid";
+            } else if (emp.getLevel() == 3) {
+                levelStr = "Senior";
+            }
+            employeeListModel.addElement(emp.getName() + " (" + emp.getRoleName() + " - " + levelStr + ") - Income: $" + emp.generatePassiveIncome() + "/s, Salary: $" + emp.getSalary() + "/week, XP: " + emp.getExperience());
+        }
     }
+
 }
