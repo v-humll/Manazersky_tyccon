@@ -7,6 +7,8 @@ public class Company {
     private int capacity;
     private List<Employee> employees;
 
+    private Project activeProject;
+
     public Company() {
         this.money = 1000; // Start with some initial budget
         this.week = 1;
@@ -14,6 +16,7 @@ public class Company {
         this.employees = new ArrayList<>();
         // Start with one default employee generating passive income
         this.employees.add(new Developer("Alice (Junior)", 80));
+        this.activeProject = null;
     }
 
     public void addMoney(int amount) {
@@ -68,5 +71,14 @@ public class Company {
             throw new BankruptcyException();
         }
     }
+
+    public Project getActiveProject() {
+        return activeProject;
+    }
+
+    public void setActiveProject(Project activeProject) {
+        this.activeProject = activeProject;
+    }
 }
+
 
