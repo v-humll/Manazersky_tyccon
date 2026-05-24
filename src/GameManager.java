@@ -18,7 +18,7 @@ public class GameManager {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Generate passive income and add experience to each employee
+                // 1. Generate passive income and add experience to each employee
                 int totalPassiveIncome = 0;
                 for (Employee emp : company.getEmployees()) {
                     int income = emp.generatePassiveIncome();
@@ -29,7 +29,23 @@ public class GameManager {
                 }
                 company.addMoney(totalPassiveIncome);
 
-                // Tick count for week advancement
+                // 2. Process active project progress
+                Project activeProj = company.getActiveProject();
+                if (activeProj != null) {
+                    activeProj.incrementProgress();
+                    if (activeProj.isCompleted()) {
+                        company.addMoney(activeProj.getReward());
+                        company.setActiveProject(null);
+                        JOptionPane.showMessageDialog(
+                            mainFrame,
+                            "Project \"" + activeProj.getName() + "\" has been completed!\nYou earned $" + activeProj.getReward() + ".",
+                            "Project Completed",
+                            JOptionPane.INFORMATION_MESSAGE
+                        );
+                    }
+                }
+
+                // 3. Tick count for week advancement
                 tickCount++;
                 if (tickCount >= 10) {
                     tickCount = 0;
