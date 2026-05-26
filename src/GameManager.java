@@ -7,10 +7,12 @@ public class GameManager {
     private Company company;
     private MainFrame mainFrame;
     private Timer gameTimer;
+    private RandomEventManager randomEventManager;
 
     public GameManager(Company company, MainFrame mainFrame) {
         this.company = company;
         this.mainFrame = mainFrame;
+        this.randomEventManager = new RandomEventManager();
         
         // Check every 1sec -> add passive income, add XP, and advance week every 10 ticks
         gameTimer = new Timer(1000, new ActionListener() {
@@ -22,7 +24,17 @@ public class GameManager {
                 int totalPassiveIncome = 0;
                 for (Employee emp : company.getEmployees()) {
                     int income = emp.generatePassiveIncome();
-                    totalPassiveIncome += income;
+                    
+                    // Apply global upgrades multiplier
+                    double multiplier = 1.0;
+                    if (company.getUpgrades() != null) {
+                        for (Upgrade u : company.getUpgrades()) {
+                            if (u.isPurchased()) {
+                                multiplier += (u.getIncomeMultiplier() - 1.0);
+                            }
+                        }
+                    }
+                    totalPassiveIncome += (int)(income * multiplier);
                     
                     // Add experience every tick (10 XP per second)
                     emp.addExperience(10);
@@ -51,6 +63,13 @@ public class GameManager {
                     tickCount = 0;
                     company.setWeek(company.getWeek() + 1);
                     
+                    // Trigger weekly random event
+                    try {
+                        randomEventManager.checkAndTriggerEvent(company, mainFrame);
+                    } catch (Exception ex) {
+                        System.err.println("Random event failed: " + ex.getMessage());
+                    }
+                    
                     // Process weekly salaries and check for bankruptcy
                     try {
                         company.paySalaries();
@@ -64,6 +83,30 @@ public class GameManager {
                         );
                         System.exit(0);
                     }
+                }
+
+                // 4. Check victory condition (e.g. reach $5000 budget to enter stock market)
+                if (company.getMoney() >= 5000) {
+                    gameTimer.stop();
+                    JOptionPane.showMessageDialog(
+                        mainFrame,
+                        "Congratulations! Your company has reached $" + company.getMoney() + " and successfully entered the Stock Market!\nYou won the game!",
+                        "Victory - IPO Achieved!",
+                        JOptionPane.INFORMATION_MESSAGE
+                    );
+                    System.exit(0);
+                }
+
+                // 5. Check if company went bankrupt due to random event
+                if (company.getMoney() < 0) {
+                    gameTimer.stop();
+                    JOptionPane.showMessageDialog(
+                        mainFrame, 
+                        "Your company went bankrupt! You ran out of money (Balance: $" + company.getMoney() + ").\nGame Over!",
+                        "Bankruptcy - Game Over",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                    System.exit(0);
                 }
                 
                 // Update the UI
@@ -88,4 +131,5 @@ public class GameManager {
         gameTimer.stop();
     }
 }
+
 
