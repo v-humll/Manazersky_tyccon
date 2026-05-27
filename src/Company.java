@@ -6,8 +6,8 @@ public class Company {
     private int week;
     private int capacity;
     private List<Employee> employees;
-
     private Project activeProject;
+    private List<Upgrade> upgrades;
 
     public Company() {
         this.money = 1000; // Start with some initial budget
@@ -17,6 +17,11 @@ public class Company {
         // Start with one default employee generating passive income
         this.employees.add(new Developer("Alice (Junior)", 80));
         this.activeProject = null;
+        
+        // Initialize global upgrades
+        this.upgrades = new ArrayList<>();
+        this.upgrades.add(new Upgrade("Advanced Coding Tools", 500, 1.3)); // +30% boost
+        this.upgrades.add(new Upgrade("Cloud Servers", 1000, 1.5)); // +50% boost
     }
 
     public void addMoney(int amount) {
@@ -78,6 +83,10 @@ public class Company {
 
     public void setActiveProject(Project activeProject) {
         this.activeProject = activeProject;
+    }
+
+    public List<Upgrade> getUpgrades() {
+        return upgrades;
     }
 }
 

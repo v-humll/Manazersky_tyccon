@@ -105,11 +105,41 @@ public class MarketFrame extends JFrame {
         officePanel.add(buyOfficeButton);
         marketPanel.add(officePanel);
 
-        // Upgrades panel (Placeholder for future upgrades)
+        // Upgrades panel
         JPanel upgradePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         upgradePanel.setBorder(BorderFactory.createTitledBorder("Upgrades"));
-        JButton buyUpgradeButton = new JButton("Buy Global Upgrade ($1000)");
-        buyUpgradeButton.setEnabled(false); // Locked for step 8
+        
+        JComboBox<Upgrade> upgradeCombo = new JComboBox<>();
+        if (company.getUpgrades() != null) {
+            for (Upgrade u : company.getUpgrades()) {
+                upgradeCombo.addItem(u);
+            }
+        }
+        
+        JButton buyUpgradeButton = new JButton("Buy Selected Upgrade");
+        buyUpgradeButton.addActionListener(e -> {
+            Upgrade selected = (Upgrade) upgradeCombo.getSelectedItem();
+            if (selected == null) {
+                JOptionPane.showMessageDialog(this, "Please select an upgrade to purchase.", "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (selected.isPurchased()) {
+                JOptionPane.showMessageDialog(this, "Upgrade already purchased!", "Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            try {
+                company.removeMoney(selected.getCost());
+                selected.setPurchased(true);
+                mainFrame.updateCompanyInfo(company);
+                upgradeCombo.setSelectedItem(selected);
+                upgradeCombo.repaint();
+                JOptionPane.showMessageDialog(this, selected.getName() + " purchased successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (InsufficientFundsException ex) {
+                JOptionPane.showMessageDialog(this, "Not enough money for upgrade! (Cost: $" + selected.getCost() + ")", "Insufficient Funds", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        upgradePanel.add(upgradeCombo);
         upgradePanel.add(buyUpgradeButton);
         marketPanel.add(upgradePanel);
 
